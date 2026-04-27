@@ -1,0 +1,247 @@
+/* Navbar link တွေရဲ့ အရောင်နဲ့ hover effect */
+.nav-link {
+  font-weight: 500;
+  text-transform: uppercase;
+  font-size: 0.9rem;
+  margin: 0 10px;
+  color: #ffffff !important;
+}
+navbar {
+  opacity: 0.6;
+  z-index: 1;
+  position: sticky;
+  top: 0;
+}
+.nav-link:hover {
+  color: #ffc107 !important; /* Gold/Warning color */
+}
+.logo-img {
+  width: 40px;
+  height: 40px;
+  object-fit: cover;
+}
+.hero-section {
+  position: relative;
+  height: 100vh; /* Screen အပြည့်ယူမယ် */
+  width: 100%;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Video ကို Background အဖြစ် ပုံသေထားခြင်း */
+.hero-video {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover; /* Video ကို window size နဲ့ အံကိုက်ညှိပေးတယ် */
+  z-index: -1; /* စာသားတွေရဲ့ အနောက်ကို ပို့ထားမယ် */
+}
+
+/* Video ပေါ်က အမှောင်ချတဲ့ အလွှာ (Overlay) */
+.video-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.45); /* စာသားတွေ ကြည့်ရတာ ရှင်းအောင် အနည်းငယ် မှောင်ပေးခြင်း */
+  z-index: 0;
+}
+
+/* စာသားများ၏ Position ကို Overlay အပေါ်ရောက်အောင် ထားခြင်း */
+.hero-content {
+  position: relative;
+  z-index: 1;
+}
+
+/* Navbar ကို Transparent ဖြစ်စေရန် */
+.navbar {
+  background: transparent !important;
+}
+.card-image {
+  border-top-left-radius: 5px;
+  border-top-right-radius: 5px;
+}
+.card-body h5 {
+  color: #ffc107 !important;
+}
+.card-body p {
+  opacity: 0.7;
+}
+.time {
+  border-bottom: 1px solid gray;
+  padding-bottom: 15px;
+  margin-bottom: 15px;
+  font-weight: 500;
+}
+.text-container {
+  display: flex;
+  justify-content: center;
+}
+.hour {
+  width: 40%;
+}
+.time-container {
+  cursor: pointer;
+  font-size: 18px;
+}
+.menu-container {
+  margin-top: 100px;
+  position: relative;
+}
+.menu-section {
+  margin: 100px 0px;
+}
+.footer-image {
+  width: 100px;
+}
+.menu-section .card {
+  transition: all 0.3s ease-in-out;
+  cursor: pointer;
+}
+.menu-section .card:hover {
+  transform: translateY(-10px);
+}
+.menu-section .card-image {
+  height: 200px;
+}
+ul {
+  list-style: none;
+}
+.tiktok-image {
+  width: 100px;
+}
+.footer-container {
+  border-top: 2px solid black;
+  padding: 20px 0;
+  border-bottom: 1px solid rgb(194, 193, 193);
+}
+.sunday-section {
+  background-color: #711927;
+  padding: 60px;
+}
+.sunday-section p {
+  color: white;
+}
+.sunday-section h1 {
+  color: #ffc107;
+}
+.footer-link a {
+  text-decoration: none;
+  color: black;
+  align-items: center;
+  display: flex;
+}
+.version {
+  padding: 15px;
+  opacity: 0.7;
+}
+.model-section {
+  background-color: rgb(205, 209, 209);
+  position: absolute;
+  z-index: 100;
+  border-radius: 5px;
+  transition: all 0.5s;
+}
+
+.model-section .title {
+  border-bottom: 1px solid rgb(175, 171, 171);
+  padding-bottom: 10px;
+}
+.model-section .card-image {
+  height: 200px;
+  object-fit: cover;
+}
+.model-section .card {
+  height: 450px;
+}
+.reservation-container {
+  margin-top: 100px;
+}
+.line-image {
+  width: 300px;
+}
+.gallery-container {
+  margin-top: 100px;
+}
+.about-container {
+  margin-top: 100px;
+}
+.gallery-image {
+  width: 100%;
+  height: 300px;
+  object-fit: cover;
+  border-radius: 5px;
+}
+.gallery-btn :hover {
+  background-color: #d4af37;
+}
+.about-card-container {
+  width: 80%;
+  margin: 50px auto;
+}
+.about-daning {
+  background-image: url("https://images.unsplash.com/photo-1556745750-68295fefafc5?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDF8MHxzZWFyY2h8MTV8fHJlc3RhdXJhbnR8ZW58MHx8MHx8fDA%3D");
+  background-size: cover;
+  padding: 150px 50px;
+  object-fit: cover;
+}
+.about-text-container {
+  width: 60%;
+  margin: auto;
+}
+.contact-container {
+  padding-top: 100px;
+  background-color: gray;
+}
+.contact-image {
+  width: 250px;
+}
+.login-container {
+  padding-top: 100px;
+  background-image: url("https://plus.unsplash.com/premium_photo-1701882459791-49ef309e1957?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8OXx8Zm9vZCUyMGJhY2tncm91bmR8ZW58MHx8MHx8fDA%3D");
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: center;
+  padding-bottom: 10px;
+}
+
+.login-form {
+  margin: auto;
+  width: 450px;
+  border-radius: 5px;
+  background-color: white;
+  padding-bottom: 50px;
+  margin-bottom: 200px;
+}
+.login-image {
+  width: 80px;
+  margin-top: 50px;
+}
+.login-image-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.contact-title {
+  padding-bottom: 100px;
+}
+.hero-content h5 {
+  opacity: 0.7;
+}
+@media screen and (max-width: 767px) {
+  .hour {
+    width: 90%;
+  }
+  .about-card-container {
+    width: 100%;
+  }
+  .about-text-container {
+    width: 100%;
+  }
+}
