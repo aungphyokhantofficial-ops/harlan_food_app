@@ -1,134 +1,112 @@
-const menuItems = [
-  {
-    image: "https://harlanrestaurant.com/images/categories/1776939880_4ceafcd6-2535-4515-9e16-cb17c585920d.JPG",
-    title: "Daily ( Starter )",
-  },
-  {
-    image: "https://harlanrestaurant.com/images/categories/1776939897_98baf2e2-c21b-4825-b726-b2a609b25307.JPG",
-    title: "Daily ( Main Coiurse )",
-  },
-  {
-    image: "https://harlanrestaurant.com/images/categories/1776756729_25bb7d3e-6fd9-4acc-9992-7204f3b2d824.jpeg",
-    title: "Daily ( Dessert )",
-  },
-  {
-    image: "https://harlanrestaurant.com/images/categories/1777036541_Copy%20of%20Red%20Luxury%20Wine%20Menu%20(1).jpg",
-    title: "Wine",
-  },
-  {
-    image: " https://harlanrestaurant.com/images/categories/1777036589_Copy%20of%20Red%20Luxury%20Wine%20Menu.jpg",
-    title: "Wine",
-  },
-];
-
-const menuItems2 = [
-  {
-    image: "https://harlanrestaurant.com/images/menu-items/1776772549_Untitled%20design%20(3).jpg",
-    title: "Organic Pork Chop, Slow-Cooked, Roasted Tomatoes, Mozzarella, Basil Pesto, Riso",
-    price: 980,
-  },
-  {
-    image: "https://harlanrestaurant.com/images/menu-items/1776773368_Untitled%20design%20(5).jpg",
-    title: "Charcoal Grilled Lamb Chops, Porcini Truffle Stuffing, Vegetables, Roast Garlic Jus",
-    price: 1580,
-  },
-  {
-    image: "https://harlanrestaurant.com/images/menu-items/1776797252_Untitled%20design%20(8).jpg",
-    title: "French Fries, Ketchup, Truffle Mayonnaise",
-    context: "something on sides",
-    price: 190,
-  },
-  {
-    image: "https://harlanrestaurant.com/images/menu-items/1776797542_Untitled%20design%20(9).jpg",
-    title: "Creamed Spinach with Parmesan",
-    context: "Something on Sides",
-    price: 280,
-  },
-  {
-    image: "https://harlanrestaurant.com/images/menu-items/1777037217_Untitled%20design%20(13).jpg",
-    title: "The Wellington *",
-    context: "Beef Willie, Wagyu Beef Fillet, Foie Gras, Porcini, Wrapped in Buttery Pastry ( Cooking Time - 30 Mins )",
-    price: 1780,
-  },
-  {
-    image: "https://harlanrestaurant.com/images/menu-items/1777037726_Untitled%20design%20(14).jpg",
-    title: "Seafood Rice, Lots of Seafood, Spanish Rice in Rich Broth",
-    price: 1280,
-  },
-];
-
 import { X } from "lucide-react";
 import { useState } from "react";
 import { useNavigate } from "react-router";
+import { useQuery } from "@tanstack/react-query";
+
+const menuApi = "http://localhost:8800/menu"; // categories ယူတဲ့ API
 
 export default function Menu() {
   const [isOpen, setIsOpen] = useState(false);
+  const [selectedType, setSelectedType] = useState(""); // နှိပ်လိုက်တဲ့ type ကို သိမ်းရန်
   const navigate = useNavigate();
+
+  // ၁။ Main Menu Categories ကို ခေါ်ယူခြင်း
+  const {
+    data: menuCategories,
+    isLoading,
+    error,
+  } = useQuery({
+    queryKey: ["menus"],
+    queryFn: async () => {
+      const res = await fetch(menuApi);
+      return res.json();
+    },
+  });
+
+  // ၂။ See More နှိပ်လိုက်တဲ့ Type အလိုက် Item များကို Filter လုပ်ယူခြင်း
+  // (Backend က category အောက်မှာ items တွေ include လုပ်ပြီးသားမို့လို့
+  //  Client-side မှာပဲ အလွယ်တကူ filter စစ်ထုတ်လိုက်ပါမယ်)
+  const currentCategory = menuCategories?.find((cat) => cat.menuType === selectedType);
+  const displayItems = currentCategory?.items || [];
+
+  const handleSeeMore = (type) => {
+    setSelectedType(type); // နှိပ်လိုက်တဲ့ menu type (e.g. Daily) ကို သိမ်းမယ်
+    setIsOpen(true); // Modal ဖွင့်မယ်
+  };
+
+  if (isLoading)
+    return (
+      <div className="text-center mt-5">
+        <div className="spinner-border text-primary"></div>
+      </div>
+    );
+  if (error) return <div className="alert alert-danger text-center">Something went wrong!</div>;
 
   return (
     <div className="container text-center menu-container">
-      {/* 1. THE MODAL OVERLAY */}
+      {/* --- MODAL OVERLAY --- */}
       {isOpen && (
         <div
           className="position-fixed top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center"
-          style={{ zIndex: 1050, backgroundColor: "rgba(0,0,0,0.8)" }}>
-          <section className="model-section p-3 rounded-3 bg-secondary" style={{ maxWidth: "90%", maxHeight: "90vh", overflowY: "auto" }}>
-            <div className="d-flex justify-content-between mb-3 fs-5 text-white title">
-              <div>Daily (Main Course)</div>
-              {/* 2. HIDE MODAL ON CLICK X */}
-              <button className="btn" onClick={() => setIsOpen(false)}>
+          style={{ zIndex: 1050, backgroundColor: "rgba(0,0,0,0.85)" }}>
+          <section className="model-section p-4 rounded-3 bg-dark text-white" style={{ width: "90%", maxHeight: "90vh", overflowY: "auto" }}>
+            <div className="d-flex justify-content-between mb-4 fs-5 title border-bottom pb-2">
+              <div className="fw-bold">{selectedType} Menu Items</div>
+              <button className="btn p-0" onClick={() => setIsOpen(false)}>
                 <X color="white" size={32} />
               </button>
             </div>
 
-            <div id="list" className="row row-cols-1 row-cols-md-2 row-cols-lg-4 g-2">
-              {menuItems2.map((items, index) => (
-                <div className="col" key={index}>
-                  <div className="card text-center shadow bg-white h-100">
-                    <img src={items.image} alt="" className="card-img-top" style={{ height: "200px", objectFit: "cover" }} />
-                    <div className="card-body">
-                      <p className="fw-bold" style={{ fontSize: "0.9rem" }}>
-                        {items.title}
-                      </p>
-                      <p className="small text-muted">{items.context}</p>
-                    </div>
-                    <div className="card-footer bg-white border-0">
-                      <button className="btn btn-warning fw-bold">THB {items.price}</button>
+            <div className="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-3">
+              {displayItems.length > 0 ?
+                displayItems.map((item, index) => (
+                  <div className="col" key={index}>
+                    <div className="card text-center shadow-sm bg-white text-dark h-100">
+                      <img src={item.image} alt={item.name} className="card-img-top" style={{ height: "180px", objectFit: "cover" }} />
+                      <div className="card-body">
+                        <h6 className="fw-bold mb-1">{item.name}</h6>
+                        <p className="small text-muted mb-0">{item.description}</p>
+                      </div>
+                      <div className="card-footer bg-white border-0 pb-3">
+                        <span className="badge bg-warning text-dark fs-6">{item.price} MMK</span>
+                      </div>
                     </div>
                   </div>
-                </div>
-              ))}
+                ))
+              : <div className="col-12 text-center py-5">No items found for this category.</div>}
             </div>
           </section>
         </div>
       )}
 
-      {/* MAIN PAGE CONTENT */}
-      <h1 className="display-2 fw-bold mt-5">Our Menu</h1>
-      <p>Experience an exquisite journey through Spanish, Mexican, and Cuban flavors.</p>
+      {/* --- MAIN PAGE CONTENT --- */}
+      <h1 className="display-4 fw-bold mt-5">Our Menu</h1>
+      <p className="lead mb-5 text-muted">Experience an exquisite journey through our authentic flavors.</p>
 
       <div className="row row-cols-1 row-cols-lg-2 g-4">
-        {menuItems.map((item, i) => {
-          return (
-            <div className="col" key={i}>
-              <div className="card h-100 shadow-sm">
-                <img src={item.image} alt="" className="card-img-top" style={{ height: "auto", objectFit: "cover" }} />
-                <div className="card-body">
-                  <h4 className="fw-bold">{item.title}</h4>
-                  {/* 3. SHOW MODAL ON CLICK SEE MORE */}
-                  <button className="btn btn-link text-decoration-none" onClick={() => setIsOpen(true)}>
-                    [See more...]
-                  </button>
+        {menuCategories?.map((cat, i) => (
+          <div className="col" key={i}>
+            <div className="card h-100 shadow border-0 overflow-hidden">
+              <div className="position-relative">
+                <img src={cat.image} alt={cat.name} className="card-img-top" style={{ objectFit: "cover" }} />
+                <div className="position-absolute bottom-0 start-0 w-100 p-3 bg-dark bg-opacity-50 text-white">
+                  <h3 className="fw-bold mb-0">{cat.name}</h3>
                 </div>
               </div>
+              <div className="card-body d-flex justify-content-between align-items-center bg-light">
+                <span className="text-uppercase small fw-bold text-secondary">{cat.menuType}</span>
+                <button className="btn btn-dark btn-sm px-4 rounded-pill" onClick={() => handleSeeMore(cat.menuType)}>
+                  See more...
+                </button>
+              </div>
             </div>
-          );
-        })}
+          </div>
+        ))}
       </div>
 
-      <div className="text-center my-5">
-        <h3>Experience the elegance of Harlan with a reservation for our exquisite dining.</h3>
-        <button className="btn btn-outline-secondary px-4 py-2" onClick={() => navigate("/reservation")}>
+      <div className="text-center my-5 py-5 border-top">
+        <h3 className="mb-4">Experience the elegance of Harlan with a reservation.</h3>
+        <button className="btn btn-outline-dark btn-lg px-5" onClick={() => navigate("/reservation")}>
           Book a Reservation
         </button>
       </div>

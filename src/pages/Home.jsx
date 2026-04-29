@@ -1,18 +1,31 @@
-import { useEffect, useState } from "react";
+import { use, useEffect, useState } from "react";
 import { useNavigate } from "react-router";
+import { useQuery } from "@tanstack/react-query";
+
+const hourApi = "http://localhost:8800/hours";
 
 export default function Home() {
   const navigate = useNavigate();
-  const [hours, setHours] = useState([]);
 
-  useEffect(() => {
-    fetch("http://localhost:8800/hours").then((res) => {
-      res.json().then((data) => {
-        setHours(data);
-        console.log(data);
-      });
-    });
-  }, []);
+  const {
+    data: hours,
+    isLoading,
+    error,
+  } = useQuery({
+    queryKey: ["hours"],
+    queryFn: async () => {
+      const res = await fetch(hourApi);
+      return res.json();
+    },
+  });
+
+  if (isLoading) return <div className="spinner-border text-primary text-center" role="status"></div>;
+  if (error)
+    return (
+      <div className="alert alert-danger" role="alert">
+        Something went wrong!
+      </div>
+    );
 
   return (
     <div>
@@ -138,7 +151,7 @@ export default function Home() {
 
             // ပုံမှန်အားဖြင့် array က Sunday ကစရင် index နဲ့ တိုက်စစ်လို့ရပါတယ်။
             // တကယ်လို့ array က တနင်္လာနေ့က စတာမျိုးဆိုရင်တော့ logic အနည်းငယ် ပြောင်းရပါမယ်။
-            const isToday = currentDay === index;
+            const isToday = currentDay === index + 1;
 
             return (
               <div className="d-flex justify-content-between time py-2 border-bottom" key={index}>
