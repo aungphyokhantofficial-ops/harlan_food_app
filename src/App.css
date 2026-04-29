@@ -73,9 +73,10 @@ navbar {
   opacity: 0.7;
 }
 .time {
-  border-bottom: 1px solid gray;
-  padding-bottom: 15px;
-  margin-bottom: 15px;
+  background-color: rgb(248, 245, 245);
+  padding: 20px 20px;
+  border-radius: 5px;
+  margin-bottom: 10px;
   font-weight: 500;
 }
 .text-container {

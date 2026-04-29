@@ -1,6 +1,19 @@
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router";
+
 export default function Home() {
   const navigate = useNavigate();
+  const [hours, setHours] = useState([]);
+
+  useEffect(() => {
+    fetch("http://localhost:8800/hours").then((res) => {
+      res.json().then((data) => {
+        setHours(data);
+        console.log(data);
+      });
+    });
+  }, []);
+
   return (
     <div>
       <section className="hero-section">
@@ -119,43 +132,53 @@ export default function Home() {
       <section className="menu-section m-auto mb-5 hour ">
         <h3 className="text-center mb-5">Opening Hours</h3>
         <div className="time-container">
-          <div className="d-flex justify-content-between time">
-            <div>Sunday</div>
-            <div>01.00:PM - 06:00PM</div>
-          </div>
-          <div className="d-flex justify-content-between time">
-            <div>Monday</div>
-            <div>Closed</div>
-          </div>
-          <div className="d-flex justify-content-between time">
-            <div>Tuesday</div>
-            <div>01.00:PM - 06:00PM</div>
-          </div>
-          <div className="d-flex justify-content-between time">
-            <div>Webnesday</div>
-            <div>01.00:PM - 06:00PM</div>
-          </div>
-          <div className="d-flex justify-content-between time">
-            <div>Thursday</div>
-            <div>01.00:PM - 06:00PM</div>
-          </div>
-          <div className="d-flex justify-content-between time">
-            <div>Friday</div>
-            <div>01.00:PM - 06:00PM</div>
-          </div>
-          <div className="d-flex justify-content-between time">
-            <div>Saturaday</div>
-            <div>01.00:PM - 06:00PM</div>
-          </div>
+          {hours.map((hour, index) => {
+            // လက်ရှိနေ့ကို ယူတယ် (Sunday = 0, Monday = 1, ..., Saturday = 6)
+            const currentDay = new Date().getDay();
+
+            // ပုံမှန်အားဖြင့် array က Sunday ကစရင် index နဲ့ တိုက်စစ်လို့ရပါတယ်။
+            // တကယ်လို့ array က တနင်္လာနေ့က စတာမျိုးဆိုရင်တော့ logic အနည်းငယ် ပြောင်းရပါမယ်။
+            const isToday = currentDay === index;
+
+            return (
+              <div className="d-flex justify-content-between time py-2 border-bottom" key={index}>
+                <div className="d-flex justify-content-start gap-3 align-items-center">
+                  <div className={isToday ? "fw-bold text-primary" : ""}>{hour.dayOfWeek}</div>
+
+                  <div className="d-flex align-items-center gap-2">
+                    {/* Today Badge */}
+                    {isToday && <span className="badge bg-warning text-dark">Today</span>}
+
+                    {hour.isClosed === false ?
+                      <span className="badge rounded-pill bg-success-subtle text-success border border-success">Open</span>
+                    : <span className="badge rounded-pill bg-danger-subtle text-danger border border-danger">Closed</span>}
+                  </div>
+                </div>
+
+                <div className="d-flex gap-3 align-items-center">
+                  {hour.isClosed === false ?
+                    <div className={isToday ? "fw-bold" : ""}>
+                      {hour.openTime} - {hour.closeTime}
+                    </div>
+                  : <div className="text-center">
+                      <small className="text-danger fw-bold">Closed</small>
+                    </div>
+                  }
+                </div>
+              </div>
+            );
+          })}
         </div>
 
         <div>
           <p className="text-center mb-4">
-            Lorem ipsum dolor sit amet consectetur adipisicing elit. Voluptatibus provident rerum nesciunt, ipsum totam asperiores esse delectus autem
-            possimus dolorum repudiandae tenetur. Nemo
+            On Sundays, we offer a specially curated menu featuring a selection of premium cuts, signature dishes, and a refined dessert experience —
+            thoughtfully designed to complete your evening.
           </p>
           <div className="text-container">
-            <button className="btn btn-outline-secondary">Reeserve Your Experience</button>
+            <button className="btn btn-outline-secondary" onClick={() => navigate("/reservation")}>
+              Reeserve Your Experience
+            </button>
           </div>
         </div>
       </section>
