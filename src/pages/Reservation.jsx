@@ -1,11 +1,14 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import axios from "axios";
 
 const bookingApi = "http://localhost:8800/reservations";
 
 export default function Reservation() {
   const queryClient = useQueryClient();
   const [paymentScreenshot, setPaymentScreenshot] = useState(null);
+  const [isWaiting, setIsWaiting] = useState(false);
+  const [currentBookingId, setCurrentBookingId] = useState(null);
 
   const [formData, setFormData] = useState({
     bookingDate: "",
@@ -16,16 +19,26 @@ export default function Reservation() {
     email: "",
     otherContactId: "",
     selectedMenu: "Daily (Starter)",
-    specialNotes: "", // Additional Comments အတွက်
+    specialNotes: "",
     agreedToTerms: false,
     understandEarly: false,
   });
+
+  // --- အသစ်ထည့်သွင်းလိုက်သော Timer Logic ---
+  const startWaitingTimer = () => {
+    setIsWaiting(true);
+
+    setTimeout(() => {
+      setIsWaiting(false);
+      alert("✅ ဘွတ်ကင်တင်ခြင်း အောင်မြင်ပါသည်။ လူကြီးမင်းထံသို့ Admin မှ မကြာမီ ပြန်လည်ဆက်သွယ်ပေးပါမည်။");
+      window.location.reload();
+    }, 5000); // ၅ စက္ကန့်စောင့်မည်
+  };
 
   const handleDateChange = (e) => {
     const selected = new Date(e.target.value);
     const today = new Date();
     today.setHours(0, 0, 0, 0);
-
     if (selected.getDay() === 0) {
       alert("Sunday (တနင်္ဂနွေနေ့) သည် ဆိုင်ပိတ်ရက်ဖြစ်ပါသည်။");
       e.target.value = "";
@@ -42,7 +55,6 @@ export default function Reservation() {
   const handleTimeChange = (e) => {
     const time = e.target.value;
     const [hours] = time.split(":").map(Number);
-
     if (hours < 5 || hours >= 22) {
       alert("ဆိုင်ဖွင့်ချိန် (5AM - 10PM) အတွင်းသာ ရွေးချယ်ပေးပါ။");
       e.target.value = "";
@@ -51,44 +63,28 @@ export default function Reservation() {
     setFormData({ ...formData, bookingTime: time });
   };
 
-  // --- ၄။ Mutation with Try...Catch ---
   const mutation = useMutation({
     mutationFn: async (data) => {
-      try {
-        const bodyFormData = new FormData();
-
-        // Append text fields
-        Object.keys(data).forEach((key) => {
-          bodyFormData.append(key, data[key]);
-        });
-
-        // Append file if exists
-        if (paymentScreenshot) {
-          bodyFormData.append("paymentScreenshot", paymentScreenshot);
-        }
-
-        const res = await fetch(bookingApi, {
-          method: "POST",
-          // Note: FormData သုံးရင် Headers မှာ Content-Type ထည့်စရာမလိုပါ (Boundary error တက်တတ်လို့ပါ)
-          body: bodyFormData,
-        });
-
-        // Network error မဟုတ်သော်လည်း server က error ပြန်သည့်အခါ (ဥပမာ 400, 500)
-        if (!res.ok) {
-          const errorData = await res.json().catch(() => ({ message: "Unknown Server Error" }));
-          throw new Error(errorData.message || `Status: ${res.status}`);
-        }
-
-        return await res.json();
-      } catch (err) {
-        // Network timeout သို့မဟုတ် Fetch error များကို ဒီမှာဖမ်းပါမည်
-        throw new Error(err.message || "Something went wrong while connecting to server");
+      const bodyFormData = new FormData();
+      Object.keys(data).forEach((key) => {
+        bodyFormData.append(key, data[key]);
+      });
+      if (paymentScreenshot) {
+        bodyFormData.append("paymentScreenshot", paymentScreenshot);
       }
+      const res = await fetch(bookingApi, {
+        method: "POST",
+        body: bodyFormData,
+      });
+      if (!res.ok) {
+        const errorData = await res.json().catch(() => ({ message: "Unknown Error" }));
+        throw new Error(errorData.message || `Status: ${res.status}`);
+      }
+      return await res.json();
     },
-    onSuccess: (data) => {
-      alert(`Success! ဘွတ်ကင်အောင်မြင်ပါသည်။ ${formData.email} သို့ Confirmation Mail ပို့လိုက်ပါပြီ။`);
-      queryClient.invalidateQueries(["reservations"]);
-      window.location.reload();
+    onSuccess: (response) => {
+      // API အောင်မြင်လျှင် ၅ စက္ကန့် စောင့်ခိုင်းမည်
+      startWaitingTimer();
     },
     onError: (error) => {
       alert(`Error Occurred: ${error.message}`);
@@ -117,7 +113,18 @@ export default function Reservation() {
   };
 
   return (
-    <div className="reservation-container container mb-5">
+    <div className="reservation-container container mb-5 position-relative">
+      {/* Waiting Overlay - Design မူလအတိုင်း */}
+      {isWaiting && (
+        <div
+          className="position-fixed top-0 start-0 w-100 h-100 d-flex flex-column align-items-center justify-content-center"
+          style={{ backgroundColor: "rgba(0,0,0,0.85)", zIndex: 2000, color: "#ffc107" }}>
+          <div className="spinner-border text-warning mb-3" style={{ width: "3rem", height: "3rem" }}></div>
+          <h3>Waiting for Admin Confirmation...</h3>
+          <p className="text-white-50">လူကြီးမင်း၏ ဘွတ်ကင်ကို Admin မှ စစ်ဆေးနေပါသည်။ ခဏတာ စောင့်ဆိုင်းပေးပါ။</p>
+        </div>
+      )}
+
       <h1 className="text-center my-4 text-warning">Reserve Your Experience</h1>
       <div className="row row-cols-1 row-cols-md-2 g-5">
         <div className="col">
@@ -138,28 +145,35 @@ export default function Reservation() {
               <input type="number" name="guestsCount" className="form-control py-3" value={formData.guestsCount} onChange={handleChange} min="1" />
             </div>
 
+            <div className="card bg-transparent border-warning mt-4 p-3 text-center ">
+              <p className="small text-warning-50 mb-2">Scan the QR code to book via our LINE Official</p>
+              <div className="bg-white p-2 d-inline-block mx-auto rounded">
+                <img src="https://harlanrestaurant.com/images/LINE.png" alt="LINE QR Code" style={{ width: "150px", height: "150px" }} />
+              </div>
+              <h4 className="mt-3 fw-bold text-success" style={{ letterSpacing: "2px" }}>
+                LINE
+              </h4>
+            </div>
+
             {formData.guestsCount >= 6 && (
-              <div className="card border-warning bg-dark text-warning my-4 p-3 shadow-lg">
-                <h5 className="text-center">💰 20% Deposit Required</h5>
-                <div className="text-center my-3">
-                  <img
-                    src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=KPay-09123456789"
-                    alt="QR"
-                    className="img-thumbnail mb-2"
-                    style={{ width: "130px" }}
-                  />
-                  <p className="mb-0">KPay: 09123456789</p>
-                </div>
+              <div className="card border-warning bg-dark text-warning my-4 p-3 shadow-lg text-center">
+                <h5> 50000 Ks</h5>
+                <img
+                  src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=KPay-09123456789"
+                  alt="QR"
+                  className="img-thumbnail my-2 mx-auto"
+                  style={{ width: "130px" }}
+                />
+                <p className="mb-0">KPay: 09123456789</p>
                 <input
                   type="file"
-                  className="form-control form-control-sm"
+                  className="form-control form-control-sm mt-2"
                   accept="image/*"
                   onChange={(e) => setPaymentScreenshot(e.target.files[0])}
                 />
               </div>
             )}
           </div>
-          <img src="https://harlanrestaurant.com/images/LINE.png" alt="line" className="img-fluid line-image my-3" />
         </div>
 
         <div className="col">
@@ -219,8 +233,12 @@ export default function Reservation() {
               <button type="button" className="btn btn-outline-warning flex-fill py-2" onClick={() => window.location.reload()}>
                 Cancel
               </button>
-              <button type="submit" className="btn btn-outline-success flex-fill py-2 fw-bold" disabled={mutation.isPending}>
-                {mutation.isPending ? "Sending..." : "Confirm Booking"}
+              <button type="submit" className="btn btn-outline-success flex-fill py-2 fw-bold" disabled={mutation.isPending || isWaiting}>
+                {mutation.isPending ?
+                  "Sending..."
+                : isWaiting ?
+                  "Waiting Admin..."
+                : "Confirm Booking"}
               </button>
             </div>
           </form>

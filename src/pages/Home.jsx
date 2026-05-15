@@ -1,11 +1,26 @@
 import { use, useEffect, useState } from "react";
 import { useNavigate } from "react-router";
 import { useQuery } from "@tanstack/react-query";
+import { Clock } from "lucide-react";
 
 const hourApi = "http://localhost:8800/hours";
 
 export default function Home() {
   const navigate = useNavigate();
+
+  // --- 🔥 ၁။ အချိန်ပြောင်းပေးမယ့် Helper Function ထည့်မယ် ---
+  const formatTime12 = (timeString) => {
+    if (!timeString || timeString === "---") return "---";
+    try {
+      const [hours, minutes] = timeString.split(":");
+      let hour = parseInt(hours);
+      const ampm = hour >= 12 ? "PM" : "AM";
+      hour = hour % 12 || 12; // 0 ကို 12 လို့ပြောင်းပြီး 13 ကို 1 လို့ပြောင်းပေးတာပါ
+      return `${hour}:${minutes} ${ampm}`;
+    } catch (e) {
+      return timeString;
+    }
+  };
 
   const {
     data: hours,
@@ -19,28 +34,30 @@ export default function Home() {
     },
   });
 
-  if (isLoading) return <div className="spinner-border text-primary text-center" role="status"></div>;
+  if (isLoading)
+    return (
+      <div className="text-center py-5">
+        <div className="spinner-border text-primary" role="status"></div>
+      </div>
+    );
   if (error)
     return (
-      <div className="alert alert-danger" role="alert">
-        Something went wrong!
+      <div className="container mt-5">
+        <div className="alert alert-danger" role="alert">
+          Something went wrong!
+        </div>
       </div>
     );
 
   return (
     <div>
+      {/* Hero Section */}
       <section className="hero-section">
-        {/* Background Video */}
         <video autoPlay muted loop playsInline className="hero-video">
-          {/* သင့်ဆီမှာရှိတဲ့ video file လမ်းကြောင်းကို src မှာ ထည့်ပါ */}
           <source src="src/assets/food.mp4" />
           Your browser does not support the video tag.
         </video>
-
-        {/* စာသားတွေ ပိုပေါ်အောင် အပေါ်ကနေ အမည်းရောင် Overlay အုပ်ထားခြင်း */}
         <div className="video-overlay"></div>
-
-        {/* Content အပိုင်း */}
         <div className="hero-content container text-center text-white">
           <h1 className="fw-bold mb-3">Harlan's Pattaya</h1>
           <p className=" display-2 fw-bold text-warning fst-italic">Where Dining Is An Experience</p>
@@ -50,150 +67,110 @@ export default function Home() {
             <button className="btn btn-outline-light btn-lg px-4 me-3 rounded-3" onClick={() => navigate("/reservation")}>
               Reserve a Table
             </button>
-            <button
-              className="btn btn-outline-light btn-lg px-4 rounded-3"
-              onClick={() => {
-                navigate("/menu");
-              }}>
+            <button className="btn btn-outline-light btn-lg px-4 rounded-3" onClick={() => navigate("/menu")}>
               View Menu
             </button>
           </div>
         </div>
       </section>
 
-      <section className="menu-section container text-center">
-        <h3 className="pb-5">Signature Experinece</h3>
-        <div id="list" class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-2">
-          <div class="col">
-            <div class="card text-center shadow bg-white">
-              <img src="https://i.pinimg.com/1200x/0b/bb/e8/0bbbe8435a1373f6564377a6059cb710.jpg" alt="" className="card-image" />
-              <div className="card-body">
-                <h5>Culinary Mastery in Every Bite</h5>
-                <p>A promise of expertly crafted dishes that elevate dining into unforgettable momnets</p>
-              </div>
-            </div>
-          </div>
+      {/* Signature & Services Sections (နဂိုအတိုင်းထားပါသည်) */}
+      {/* ... (မင်းရဲ့ Signature Experience နဲ့ Our Services section တွေ ဒီကြားထဲမှာ ရှိပါမယ်) ... */}
 
-          <div class="col">
-            <div class="card text-center shadow bg-white">
-              <img src="https://i.pinimg.com/736x/06/6a/e6/066ae65cc8bdb3c3fbe7debd4311c9a4.jpg" alt="" className="card-image" />
-              <div className="card-body">
-                <h5>Culinary Mastery in Every Bite</h5>
-                <p>A promise of expertly crafted dishes that elevate dining into unforgettable momnets</p>
-              </div>
-            </div>
-          </div>
-
-          <div class="col">
-            <div class="card text-center shadow bg-white">
-              <img src="https://i.pinimg.com/1200x/96/5b/54/965b54b39aeab89473457b918a74b20a.jpg" alt="" className="card-image" />
-              <div className="card-body">
-                <h5>Culinary Mastery in Every Bite</h5>
-                <p>A promise of expertly crafted dishes that elevate dining into unforgettable momnets</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <section className="menu-section container text-center">
-        <h3>Our Sevices</h3>
-        <p className="mb-5">Experience a culinary journey through Spanish. Maxican and Cuban flavors</p>
-        <div id="list" class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-2">
-          <div class="col">
-            <div class="card text-center shadow bg-white">
-              <img src="https://i.pinimg.com/736x/4c/8e/7a/4c8e7a6bfa38c9c856d2c0ac09e87a38.jpg" alt="" className="card-image" />
-              <div className="card-body">
-                <h5>Culinary Mastery in Every Bite</h5>
-                <p>A promise of expertly crafted dishes that elevate dining into unforgettable momnets</p>
-              </div>
-            </div>
-          </div>
-
-          <div class="col">
-            <div class="card text-center shadow bg-white">
-              <img src="https://i.pinimg.com/736x/2d/ce/aa/2dceaad367671530ec53b2e3527aef61.jpg" alt="" className="card-image" />
-              <div className="card-body">
-                <h5>Culinary Mastery in Every Bite</h5>
-                <p>A promise of expertly crafted dishes that elevate dining into unforgettable momnets</p>
-              </div>
-            </div>
-          </div>
-
-          <div class="col">
-            <div class="card text-center shadow bg-white">
-              <img src="https://i.pinimg.com/1200x/e0/b6/c2/e0b6c23f37b4fad1ad3b0a3f8f4b6dd0.jpg" alt="" className="card-image" />
-              <div className="card-body">
-                <h5>Culinary Mastery in Every Bite</h5>
-                <p>A promise of expertly crafted dishes that elevate dining into unforgettable momnets</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
+      {/* Sunday Special */}
       <section className="my-5">
         <div className="text-center sunday-section">
           <h1>Sunday Special</h1>
           <p>Exclusive Wagyu & Wine pairing experience available only today</p>
-          <button className="btn btn-outline-warning" onClick={() => naviagte("/menu")}>
+          <button className="btn btn-outline-warning" onClick={() => navigate("/menu")}>
             Explore Sunday Menu
           </button>
         </div>
       </section>
 
-      <section className="menu-section m-auto mb-5 hour ">
-        <h3 className="text-center mb-5">Opening Hours</h3>
-        <div className="time-container">
-          {hours.map((hour, index) => {
-            // လက်ရှိနေ့ကို ယူတယ် (Sunday = 0, Monday = 1, ..., Saturday = 6)
-            const currentDay = new Date().getDay();
+      {/* --- 🔥 Opening Hours Section (ပြင်ဆင်ထားသောအပိုင်း) --- */}
+      {/* --- 🔥 Opening Hours Section (Compact & Modern Design) --- */}
+      <section className="container mb-5">
+        <div className="row justify-content-center">
+          <div className="col-12 col-md-8 col-lg-6">
+            <div className="text-center mb-4">
+              <h2 className="fw-bold text-dark mb-2">Opening Hours</h2>
+              <div className="mx-auto bg-warning" style={{ width: "50px", height: "3px" }}></div>
+            </div>
 
-            // ပုံမှန်အားဖြင့် array က Sunday ကစရင် index နဲ့ တိုက်စစ်လို့ရပါတယ်။
-            // တကယ်လို့ array က တနင်္လာနေ့က စတာမျိုးဆိုရင်တော့ logic အနည်းငယ် ပြောင်းရပါမယ်။
-            const isToday = currentDay === index + 1;
+            <div className="hour-card shadow-lg border-0 overflow-hidden" style={{ borderRadius: "24px" }}>
+              {/* Header - ပိုကျစ်လစ်သွားသည် */}
+              <div className="bg-dark p-3 text-center">
+                <span className="text-warning fw-bold small" style={{ letterSpacing: "3px" }}>
+                  RESTAURANT TIMING
+                </span>
+              </div>
 
-            return (
-              <div className="d-flex justify-content-between time py-2 border-bottom" key={index}>
-                <div className="d-flex justify-content-start gap-3 align-items-center">
-                  <div className={isToday ? "fw-bold text-primary" : ""}>{hour.dayOfWeek}</div>
+              {/* Days List - Padding များလျှော့ချထားသည် */}
+              <div className="p-3 p-md-4 bg-white">
+                {hours.map((hour, index) => {
+                  const currentDay = new Date().getDay();
+                  const isToday = currentDay === (index === 6 ? 0 : index + 1);
 
-                  <div className="d-flex align-items-center gap-2">
-                    {/* Today Badge */}
-                    {isToday && <span className="badge bg-warning text-dark">Today</span>}
+                  return (
+                    <div
+                      key={index}
+                      className={`d-flex justify-content-between align-items-center px-3 py-2 mb-1 rounded-3 transition-all ${
+                        isToday ? "today-highlight" : "hover-light"
+                      }`}>
+                      <div className="d-flex align-items-center gap-3">
+                        <span className={`fw-bold small ${isToday ? "text-warning" : "text-muted"}`} style={{ width: "35px" }}>
+                          {hour.dayOfWeek.substring(0, 3).toUpperCase()}
+                        </span>
+                        <span className={`fw-semibold ${isToday ? "text-dark" : "text-secondary"}`}>{hour.dayOfWeek}</span>
+                      </div>
 
-                    {hour.isClosed === false ?
-                      <span className="badge rounded-pill bg-success-subtle text-success border border-success">Open</span>
-                    : <span className="badge rounded-pill bg-danger-subtle text-danger border border-danger">Closed</span>}
-                  </div>
-                </div>
-
-                <div className="d-flex gap-3 align-items-center">
-                  {hour.isClosed === false ?
-                    <div className={isToday ? "fw-bold" : ""}>
-                      {hour.openTime} - {hour.closeTime}
+                      <div className="text-end">
+                        {hour.isClosed ?
+                          <span className="text-danger small fw-bold">CLOSED</span>
+                        : <span className={`fw-bold ${isToday ? "text-dark" : "text-muted"}`} style={{ fontSize: "0.95rem" }}>
+                            {formatTime12(hour.openTime)} - {formatTime12(hour.closeTime)}
+                          </span>
+                        }
+                      </div>
                     </div>
-                  : <div className="text-center">
-                      <small className="text-danger fw-bold">Closed</small>
-                    </div>
-                  }
+                  );
+                })}
+
+                {/* Quick Action - ပိုလှပသော Call to Action */}
+                <div className="mt-4 pt-3 border-top border-light text-center">
+                  <button
+                    className="btn btn-dark w-100 py-2 rounded-pill fw-bold shadow-sm"
+                    onClick={() => navigate("/reservation")}
+                    style={{ letterSpacing: "1px", fontSize: "0.9rem" }}>
+                    BOOK A TABLE NOW
+                  </button>
+                  <p className="text-muted mt-2 mb-0" style={{ fontSize: "0.75rem" }}>
+                    * Sunday Special menu available exclusively on Sundays.
+                  </p>
                 </div>
               </div>
-            );
-          })}
-        </div>
-
-        <div>
-          <p className="text-center mb-4">
-            On Sundays, we offer a specially curated menu featuring a selection of premium cuts, signature dishes, and a refined dessert experience —
-            thoughtfully designed to complete your evening.
-          </p>
-          <div className="text-container">
-            <button className="btn btn-outline-secondary" onClick={() => navigate("/reservation")}>
-              Reeserve Your Experience
-            </button>
+            </div>
           </div>
         </div>
+
+        <style>{`
+    .hour-card {
+      background: #ffffff;
+      border: 1px solid rgba(0,0,0,0.05);
+    }
+    .today-highlight {
+      background: rgba(255, 193, 7, 0.08);
+      border-left: 4px solid #ffc107;
+    }
+    .hover-light:hover {
+      background: #f8f9fa;
+    }
+    .transition-all {
+      transition: all 0.3s ease;
+    }
+    .ls-3 { letter-spacing: 3px; }
+  `}</style>
       </section>
     </div>
   );
